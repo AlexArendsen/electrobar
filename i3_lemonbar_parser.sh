@@ -8,7 +8,8 @@
 
 # min init
 irc_n_high=0
-title="%{F${color_head} B${color_sec_b2} T3}${sep_right}%{F${color_head} B${color_sec_b2}}%{T2} ${icon_prog} %{F${color_sec_b2} B- T3}${sep_right}%{F- B- T1}"
+# title="%{F${color_head} B${color_sec_b2} T3}${sep_right}%{F${color_head} B${color_sec_b2}}%{T2} ${icon_prog} %{F${color_sec_b2} B- T3}${sep_right}%{F- B- T1}"
+title="%{F${color_head} B${color_sec_b2} T2} ${icon_prog} %{T1}"
 
 # parser
 while read -r line ; do
@@ -18,32 +19,18 @@ while read -r line ; do
       sys_arr=(${line#???})
 
       # date
-      if [ ${res_w} -gt 1024 ]; then
-        date="${sys_arr[0]} ${sys_arr[1]} ${sys_arr[2]}"
-      else
-        date="${sys_arr[1]} ${sys_arr[2]}"
-      fi
-      date="%{F${color_sec_b1} T3}${sep_left}%{F${color_icon} B${color_sec_b1}} %{T2}${icon_clock}%{F- T1} ${date}"
+      date="${sys_arr[0]} ${sys_arr[1]} ${sys_arr[2]}"
+      date="%{B${color_bgdarkhl} T2}   ${icon_calendar} %{T1} ${date}"
 
       # time
-      time="%{F${color_clock_edge} T3}${sep_left}%{F${color_clock} B${color_clock_edge}}${sep_left}%{F${color_back} B${color_clock} T1} ${sys_arr[3]} %{F- B-}"
+      time="%{T2}${icon_clock}  %{T1}${sys_arr[3]}   %{F- B-}"
 
       # cpu
-      if [ ${sys_arr[4]} -gt ${cpu_alert} ]; then
-        cpu_cback=${color_cpu}; cpu_cicon=${color_back}; cpu_cfore=${color_back};
-      else
-        cpu_cback=${color_sec_b2}; cpu_cicon=${color_icon}; cpu_cfore=${color_fore};
-      fi
-      cpu="%{F${cpu_cback} T3}${sep_left}%{F${cpu_cicon} B${cpu_cback}} %{T2}${icon_cpu}%{F${cpu_cfore} T1} ${sys_arr[4]}%%"
+      cpu="%{T2}  ${icon_cpu}  %{T1}${sys_arr[4]}% %{F- B-}"
+      # cpu="%{F${cpu_cback} T3}${sep_left}%{F${cpu_cicon} B${cpu_cback}} %{T2}${icon_cpu}%{F${cpu_cfore} T1} ${sys_arr[4]}%%"
 
       # mem
       mem="%{F${cpu_cicon} T3}${sep_l_left} %{T2}${icon_mem}%{F${cpu_cfore} T1} ${sys_arr[5]}"
-
-      # disk /
-      # diskr="%{F${color_sec_b1}}${sep_left}%{F${color_icon} B${color_sec_b1}} %{T2}${icon_hd}%{F- T1} ${sys_arr[6]}%%"
-
-      # disk home
-      # diskh="%{F${color_icon}}${sep_l_left} %{T2}${icon_home}%{F- T1} ${sys_arr[7]}%%"
 
       # wlan
       if [ "${sys_arr[8]}" == "down" ]; then
@@ -57,23 +44,8 @@ while read -r line ; do
           wlan_cback=${color_sec_b2}; wlan_cicon=${color_icon}; wlan_cfore=${color_fore};
         fi
       fi
-      wland="%{F${wlan_cback} T3}${sep_left}%{F${wlan_cicon} B${wlan_cback}} %{T2}${icon_dl}%{F${wlan_cfore} T1} ${wland_v}"
-      wlanu="%{F${wlan_cicon} T3}${sep_l_left} %{T2}${icon_ul}%{F${wlan_cfore} T1} ${wlanu_v}"
-
-      # eth
-      # if [ "${sys_arr[10]}" == "down" ]; then
-      #   ethd_v="×"; ethu_v="×";
-      #   eth_cback=${color_sec_b1}; eth_cicon=${color_disable}; eth_cfore=${color_disable};
-      # else
-      #   ethd_v=${sys_arr[10]}K; ethu_v=${sys_arr[11]}K;
-      #   if [ ${ethd_v:0:-3} -gt ${net_alert} ] || [ ${ethu_v:0:-3} -gt ${net_alert} ]; then
-      #     eth_cback=${color_net}; eth_cicon=${color_back}; eth_cfore=${color_back};
-      #   else
-      #     eth_cback=${color_sec_b1}; eth_cicon=${color_icon}; eth_cfore=${color_fore};
-      #   fi
-      # fi
-      # ethd="%{F${eth_cback}}${sep_left}%{F${eth_cicon} B${eth_cback}} %{T2}${icon_dl}%{F${eth_cfore} T1} ${ethd_v}"
-      # ethu="%{F${eth_cicon}}${sep_l_left} %{T2}${icon_ul}%{F${eth_cfore} T1} ${ethu_v}"
+      wland="%{F${color_fgdark} T2}  ${icon_dl} %{T1} ${wland_v}  "
+      wlanu="%{T2}  ${icon_ul} %{T1} ${wlanu_v}  "
       ;;
 
     VOL*)
@@ -81,16 +53,15 @@ while read -r line ; do
       #   [0] Muted indicator: (M=Muted / (anything else)=Unmuted)
       #   [1] On/off (muted) status (1=Unmuted / 0=Muted)
       vol_arr=(${line#???})
-      vol_bkg=$color_sec_b2
-      vol_frg=$color_fore
+      vol_frg=-
+      vol_oln=-
       vol_ico=$icon_vol
       vol_txt=${vol_arr[1]}
       if [[ ${vol_arr[0]} == "M" ]]; then
-        vol_bkg=$color_sec_b1
-        vol_frg=$color_icon
-        vol_ico=$icon_mute
+        vol_frg=${color_fgdark}
+        vol_ico="${icon_mute}  "
       fi
-      vol="%{F${vol_bkg} T3}${sep_left}%{F${color_icon} B${vol_bkg}} %{T2}${vol_ico}%{F${vol_frg} T1} $vol_txt%{F${color_fore}}"
+      vol="%{B- F${vol_frg} T2}  ${vol_ico} %{T1} ${vol_txt}%{F- B-}"
       ;;
 
     GMA*)
@@ -104,18 +75,6 @@ while read -r line ; do
       gmail="%{F${mail_cback}}${sep_left}%{F${mail_cicon} B${mail_cback}} %{T2}${icon_mail}%{F${mail_cfore} T1} ${gmail}"
       ;;
 
-    IRC*)
-      # IRC highlight (script irc_warn)
-      if [ "${line#???}" != "0" ]; then
-        ((irc_n_high++)); irc_high="${line#???}";
-        irc_cback=${color_chat}; irc_cicon=${color_back}; irc_cfore=${color_back}
-      else
-        irc_n_high=0; [ -z "${irc_high}" ] && irc_high="none";
-        irc_cback=${color_sec_b2}; irc_cicon=${color_icon}; irc_cfore=${color_fore}
-      fi
-      irc="%{F${irc_cback}}${sep_left}%{F${irc_cicon} B${irc_cback}} %{T2}${icon_chat}%{F${irc_cfore} T1} ${irc_n_high} %{F${irc_cicon}}${sep_l_left} %{T2}${icon_contact}%{F${irc_cfore} T1} ${irc_high}"
-      ;;
-
     MPD*)
       # Music
       mpd_arr=(${line#???})
@@ -126,7 +85,7 @@ while read -r line ; do
       else
         song="${line#???}";
       fi
-      mpd="%{F${color_sec_b2} T3}${sep_left}%{B${color_sec_b2}}%{F${color_sec_b1}}${sep_left}%{F${color_icon} B${color_sec_b1}} %{T2}${icon_music}%{F${color_fore} T1}  ${song}"
+      mpd="%{T2}${icon_music} %{F- T1}  ${song}"
       # echo "Setting music display to ${song}" >> bar.log
       ;;
 
@@ -137,39 +96,40 @@ while read -r line ; do
       #   [2] = power level (F(ull), N(ormal), L(ow), C(ritical))
       bat_arr=(${line#???})
       bat_icons=($icon_battery)
-      ico="${bat_icons[$(((${bat_arr[0]}*(${#bat_icons[@]}-1))/100))]}"
-      bkg="${color_sec_b1}"
-      frg="${color_fore}"
+      if [[ ${bat_arr[1]} == "C" ]]; then
+        ico="${icon_charging} "
+      else
+        ico="${bat_icons[$(((${bat_arr[0]}*(${#bat_icons[@]}-1))/100))]}"
+      fi
+      bkg="${color_bgdark}"
+      frg="${color_fglight}"
+      oln="${bkg}"
 
       if [[ ${bat_arr[2]} == "L" ]]; then
-        bkg="${color_warning}"
-        frg="${color_back}"
+        oln="${color_warning}"
+        bkg="${color_bgdarkhl}"
       elif [[ ${bat_arr[2]} == "C" ]]; then
+        oln="${color_critical}"
         bkg="${color_critical}"
-        frg="${color_back}"
       elif [[ ${bat_arr[2]} == "F" ]]; then
-        bkg="${c_green_d}"
-        frg="${c_white_l}"
+        oln="${color_success}"
+        bkg="${color_bgdarkhl}"
       fi
 
-      batamt="%{F${bkg} T3}${sep_left}%{B${bkg}} %{F${frg} T2} ${ico} %{T1}${bat_arr[0]}%%"
-
-      if [[ ${bat_arr[1]} == "C" ]]; then
-        batamt="%{F${color_fore} T3}${sep_left}%{F${color_back} B${color_fore} T2}${icon_charging}${batamt}"
-      fi
+      batamt="%{+u U${oln} B${bkg}} %{F${frg} T2} ${ico} %{T1}${bat_arr[0]}%  %{-u B-}"
       ;;
 
     WSP*)
       # I3 Workspaces
-      wsp="%{F${color_back} B${color_head}} %{T2}${icon_wsp}%{T1} "
+      wsp="%{F${color_fglight} B${color_bgdark} T1}"
       set -- ${line#???}
       while [ $# -gt 0 ] ; do
         case $1 in
          FOC*)
-           wsp="${wsp}%{F${color_head} B${color_wsp} T3}${sep_right}%{F${color_back} B${color_wsp} T1} ${1##????} %{F${color_wsp} B${color_head} T3}${sep_right}"
+           wsp="${wsp}%{+u B${color_bgdarkhl} U${color_accent1} T1}   ${1##????}   %{-u B${color_bgdark} F${color_fglight}}"
            ;;
          INA*|URG*|ACT*)
-           wsp="${wsp}%{F${color_back} T1} ${1##????} "
+           wsp="${wsp}%{F${color_fglight} T1}   ${1##????}   "
            ;;
         esac
         shift
@@ -179,41 +139,15 @@ while read -r line ; do
     WIN*)
       # window title
       title=$(xprop -id ${line#???} | awk '/_NET_WM_NAME/{$1=$2="";print}' | cut -d'"' -f2)
-      title="%{F${color_head} B${color_sec_b2} T3}${sep_right}%{F${color_icon} B${color_sec_b2} T2} ${icon_prog} %{F${color_sec_b2} B- T3}${sep_right}%{F- B- T1} ${title}"
+      title=" %{F- B- T1} ${title}"
       ;;
 
-    WNM*)
-      # Window title (string)
-      title=$(echo ${line#???} | xargs)
-      title="%{F${color_head} B${color_sec_b2} T3}${sep_right}%{F${color_icon} B${color_sec_b2} T2} ${icon_prog} %{F${color_sec_b2} B- T3}${sep_right}%{F- B- T1} ${title}"
-      ;;
-
-    VIS*)
-      # Visual effects
-      viscmds=(${line#???})
-      ;;
-
-    MSG*)
-      viscmds=(`echo "fill ${color_sec_b2} ${color_fore}"`)
-      msg=${line#???}
-      ;;
-
-    WRN*)
-      viscmds=(`echo "fill ${color_warning} ${color_back}"`)
-      msg=${line#???}
-      ;;
-
-    ALT*)
-      viscmds=(`echo "fill ${color_critical} ${color_back}"`)
-      msg=${line#???}
+    SID*)
+      ssid="%{F${color_fgdark} T2}  ${icon_ssid}  %{T1}${line#???}"
       ;;
       
   esac
 
   # And finally, output
-  if [[ ${viscmds[0]} == "fill" ]]; then
-    printf "%s\n" "%{l}%{B${viscmds[2]}}   %{B${viscmds[1]} F${viscmds[2]} T3}${sep_right} %{T1}${msg} %{r}%{B${viscmds[1]} F${viscmds[2]}}"
-  else
-    printf "%s\n" "%{l}${wsp}${title} %{r}${mpd}${stab}${wland}${stab}${wlanu}${stab}${vol}${stab}${cpu}${stab}${mem}${stab}${batamt}${stab}${date}${stab}${time}"
-  fi
+  printf "%s\n" "%{U${color_accent1} l}${wsp} %{r}${ssid}${stab}${cpu}${stab}${vol}${stab}${batamt}${date}${stab}${time}"
 done

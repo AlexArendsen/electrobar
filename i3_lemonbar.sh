@@ -36,25 +36,18 @@ cnt_vol=${upd_vol}
 cnt_mail=${upd_mail}
 cnt_mpd=${upd_mpd}
 cnt_bat=${upd_bat}
-cnt_win=${upd_win}
+cnt_ssid=${upd_ssid}
 
 while :; do
 
   # Volume, "VOL"
   if [ $((cnt_vol++)) -ge ${upd_vol} ]; then
-    echo "VOL$(alsa-status)" > "${panel_fifo}" &
+    echo "VOL$(volume-status-2)" > "${panel_fifo}" &
     cnt_vol=0
   fi
 
-  # GMAIL, "GMA"
-  # if [ $((cnt_mail++)) -ge ${upd_mail} ]; then
-  #   printf "%s%s\n" "GMA" "$(~/bin/gmail.sh)" > "${panel_fifo}"
-  #   cnt_mail=0
-  # fi
-
   # MPD
   if [ $((cnt_mpd++)) -ge ${upd_mpd} ]; then
-    #printf "%s%s\n" "MPD" "$(ncmpcpp --now-playing '{%a - %t}|{%f}' | head -c 60)" > "${panel_fifo}"
     printf "%s%s\n" "MPD" "$(mpc current -f '[[%artist% - ]%title%]|[%file%]' 2>&1 | head -c 70)" > "${panel_fifo}"
     cnt_mpd=0
   fi
@@ -65,10 +58,10 @@ while :; do
     cnt_bat=0
   fi
 
-  # Periodic Window title update (Ticket #1)
-  if [ $((cnt_win++)) -ge ${upd_win} ]; then
-    echo "WIN`mywin`" > "${panel_fifo}" &
-    cnt_win=0
+  # SSID, "SID"
+  if [ $((cnt_ssid++)) -ge ${upd_ssid} ]; then
+    echo "SID$(iwgetid -r)" > "${panel_fifo}" &
+    cnt_ssid=0
   fi
 
   # Finally, wait 1 second
@@ -79,7 +72,7 @@ done &
 #### LOOP FIFO
 
 cat "${panel_fifo}" | $(dirname $0)/i3_lemonbar_parser.sh \
-  | bar -b -p -f "${font}" -f "${iconfont}" -f "${plfont}" -g "${geometry}" -B "${color_back}" -F "${color_fore}" &
+  | lemonbar -p -b -f "${font}" -f "${iconfont}" -g "${geometry}" -B "${color_back}" -F "${color_fore}" -u 3 &
 
 wait
 
